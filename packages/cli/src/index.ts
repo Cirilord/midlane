@@ -26,7 +26,7 @@ type GenerateOptions = {
 };
 
 const defaultConfigPath = 'morph.config.js';
-const defaultSchemaPath = 'morph/morph.schema';
+const defaultSchemaPath = 'morph/schema.morph';
 
 export async function runCli(argv: string[], io: CliIO = process): Promise<number> {
   const cli = cac('morph');

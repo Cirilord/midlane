@@ -66,7 +66,7 @@ describe('runCli', () => {
     const project = await writeProject({
       config: `
         export default {
-          schema: './morph/morph.schema',
+          schema: './morph/schema.morph',
         };
       `,
       schema: `
@@ -209,7 +209,7 @@ describe('runCli', () => {
           datasource: {
             url: 'https://api.example.com',
           },
-          schema: './morph/morph.schema',
+          schema: './morph/schema.morph',
         };
       `,
       schema: `
@@ -261,7 +261,7 @@ async function writeProject(input: { config: string; schema: string }): Promise<
   const directory = await mkdtemp(join(tmpdir(), 'morph-cli-'));
   const morphDirectory = join(directory, 'morph');
   const configPath = join(directory, 'morph.config.js');
-  const schemaPath = join(morphDirectory, 'morph.schema');
+  const schemaPath = join(morphDirectory, 'schema.morph');
 
   await mkdir(morphDirectory, { recursive: true });
   await writeFile(configPath, input.config);

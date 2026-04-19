@@ -4,5 +4,5 @@ export default defineConfig({
   datasource: {
     url: process.env.API_URL ?? 'https://legacy-api.example.com',
   },
-  schema: 'morph/morph.schema',
+  schema: 'morph/schema.morph',
 });
