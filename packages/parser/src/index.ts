@@ -1,7 +1,6 @@
 export type {
   ActionDeclaration,
   ApiSchema,
-  DatasourceDeclaration,
   EnumDeclaration,
   FieldDeclaration,
   GeneratorDeclaration,
@@ -9,7 +8,6 @@ export type {
   ResourceDeclaration,
   TypeDeclaration,
   TypeRef,
-  ValueExpression,
 } from './ast.js';
 export type { Diagnostic, DiagnosticCode, DiagnosticSeverity } from './diagnostic.js';
 export { ParseError, parseMorphSchema } from './parser.js';

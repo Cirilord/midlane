@@ -6,10 +6,6 @@ import { generateMorphClient } from './client-generator.js';
 describe('generateMorphClient', () => {
   it('generates types, maps, client, and index files', () => {
     const schema = parseMorphSchema(`
-      datasource api {
-        url = env("API_URL")
-      }
-
       generator client {
         output = "./generated/client"
       }
@@ -69,12 +65,12 @@ describe('generateMorphClient', () => {
       }
     `);
 
-    expect(generateMorphClient(schema)).toEqual([
+    expect(generateMorphClient(schema, { datasourceUrl: 'https://api.example.com' })).toEqual([
       {
         path: 'types.ts',
         content: [
           'export type MorphClientOptions = {',
-          '  baseUrl: string;',
+          '  baseUrl?: string;',
           '  fetcher?: typeof fetch;',
           '};',
           '',
@@ -145,11 +141,16 @@ describe('generateMorphClient', () => {
           "import { MorphEngine } from '@morph/runtime';",
           "import { AuthHeadersMap, CreateUserBodyMap, ListUsersQueryMap, UserMap } from './maps.js';",
           '',
+          'const defaultBaseUrl = "https://api.example.com";',
+          '',
           'export class MorphClient {',
           '  readonly #engine: MorphEngine;',
           '',
-          '  constructor(options: MorphClientOptions) {',
-          '    this.#engine = new MorphEngine(options);',
+          '  constructor(options: MorphClientOptions = {}) {',
+          '    this.#engine = new MorphEngine({',
+          '      ...options,',
+          '      baseUrl: options.baseUrl ?? defaultBaseUrl,',
+          '    });',
           '  }',
           '',
           '  readonly users = {',

@@ -7,8 +7,6 @@ export type Diagnostic = {
 };
 
 export type DiagnosticCode =
-  | 'missing_datasource'
-  | 'missing_datasource_url'
   | 'missing_generator'
   | 'missing_generator_output'
   | 'duplicate_type'

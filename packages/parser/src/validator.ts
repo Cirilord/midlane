@@ -17,7 +17,6 @@ export function validateMorphSchema(schema: ApiSchema): Diagnostic[] {
   const declaredTypes = collectDeclaredTypes(schema, diagnostics);
   const typeDeclarations = new Map(schema.types.map((type) => [type.name, type]));
 
-  validateDatasource(schema, diagnostics);
   validateGenerator(schema, diagnostics);
   validateTypes(schema.types, diagnostics, declaredTypes);
   validateEnums(schema.enums, diagnostics);
@@ -52,17 +51,6 @@ function collectDeclaredTypes(schema: ApiSchema, diagnostics: Diagnostic[]): Set
   }
 
   return declaredTypes;
-}
-
-function validateDatasource(schema: ApiSchema, diagnostics: Diagnostic[]): void {
-  if (schema.datasource === undefined) {
-    diagnostics.push(error('missing_datasource', 'Missing datasource declaration.'));
-    return;
-  }
-
-  if (schema.datasource.url === undefined) {
-    diagnostics.push(error('missing_datasource_url', `Datasource "${schema.datasource.name}" is missing url.`));
-  }
 }
 
 function validateGenerator(schema: ApiSchema, diagnostics: Diagnostic[]): void {

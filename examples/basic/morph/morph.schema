@@ -1,7 +1,3 @@
-datasource api {
-  url = env("API_URL")
-}
-
 generator client {
   output = "../generated/client"
 }

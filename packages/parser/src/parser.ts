@@ -1,7 +1,6 @@
 import type {
   ActionDeclaration,
   ApiSchema,
-  DatasourceDeclaration,
   EnumDeclaration,
   FieldDeclaration,
   GeneratorDeclaration,
@@ -9,7 +8,6 @@ import type {
   ResourceDeclaration,
   TypeDeclaration,
   TypeRef,
-  ValueExpression,
 } from './ast.js';
 import { type Punctuation, type Token, tokenize } from './tokenizer.js';
 
@@ -46,9 +44,6 @@ class Parser {
       const keyword = this.expectIdentifier('Expected top-level declaration');
 
       switch (keyword) {
-        case 'datasource':
-          schema.datasource = this.parseDatasource();
-          break;
         case 'generator':
           schema.generator = this.parseGenerator();
           break;
@@ -67,31 +62,6 @@ class Parser {
     }
 
     return schema;
-  }
-
-  private parseDatasource(): DatasourceDeclaration {
-    const name = this.expectIdentifier('Expected datasource name');
-    let url: ValueExpression | undefined;
-
-    this.expectPunctuation('{');
-    while (!this.consumePunctuation('}')) {
-      const key = this.expectIdentifier('Expected datasource property');
-      this.expectPunctuation('=');
-
-      switch (key) {
-        case 'url':
-          url = this.parseValueExpression();
-          break;
-        default:
-          throw this.error(`Unknown datasource property "${key}"`);
-      }
-    }
-
-    return {
-      kind: 'datasource',
-      name,
-      ...(url === undefined ? {} : { url }),
-    };
   }
 
   private parseGenerator(): GeneratorDeclaration {
@@ -251,27 +221,6 @@ class Parser {
     const isOptional = this.consumePunctuation('?');
 
     return { name, isArray, isOptional };
-  }
-
-  private parseValueExpression(): ValueExpression {
-    if (this.peek().type === 'string') {
-      return {
-        kind: 'string',
-        value: this.expectString('Expected string value'),
-      };
-    }
-
-    const callee = this.expectIdentifier('Expected value expression');
-
-    if (callee !== 'env') {
-      throw this.error(`Unknown value expression "${callee}"`);
-    }
-
-    this.expectPunctuation('(');
-    const name = this.expectString('Expected env variable name');
-    this.expectPunctuation(')');
-
-    return { kind: 'env', name };
   }
 
   private parseHttpMethod(): HttpMethod {

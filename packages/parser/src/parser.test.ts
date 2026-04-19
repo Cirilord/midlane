@@ -3,12 +3,18 @@ import { describe, expect, it } from 'vitest';
 import { parseMorphSchema } from './parser.js';
 
 describe('parseMorphSchema', () => {
+  it('rejects datasource declarations', () => {
+    expect(() =>
+      parseMorphSchema(`
+        datasource api {
+          url = env("API_URL")
+        }
+      `)
+    ).toThrow('Unknown top-level declaration "datasource"');
+  });
+
   it('parses the first Morph schema shape', () => {
     const schema = parseMorphSchema(`
-      datasource api {
-        url = env("API_URL")
-      }
-
       generator client {
         output = "./generated/client"
       }
@@ -35,11 +41,6 @@ describe('parseMorphSchema', () => {
       }
     `);
 
-    expect(schema.datasource).toEqual({
-      kind: 'datasource',
-      name: 'api',
-      url: { kind: 'env', name: 'API_URL' },
-    });
     expect(schema.generator).toEqual({
       kind: 'generator',
       name: 'client',

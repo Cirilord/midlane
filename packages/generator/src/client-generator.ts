@@ -13,6 +13,10 @@ export type GeneratedFile = {
   content: string;
 };
 
+export type GenerateMorphClientOptions = {
+  datasourceUrl?: string | undefined;
+};
+
 const scalarTypes = new Map([
   ['String', 'string'],
   ['Int', 'number'],
@@ -22,11 +26,11 @@ const scalarTypes = new Map([
   ['Json', 'unknown'],
 ]);
 
-export function generateMorphClient(schema: ApiSchema): GeneratedFile[] {
+export function generateMorphClient(schema: ApiSchema, options: GenerateMorphClientOptions = {}): GeneratedFile[] {
   return [
     {
       path: 'types.ts',
-      content: generateTypes(schema),
+      content: generateTypes(schema, options),
     },
     {
       path: 'maps.ts',
@@ -34,7 +38,7 @@ export function generateMorphClient(schema: ApiSchema): GeneratedFile[] {
     },
     {
       path: 'client.ts',
-      content: generateClient(schema),
+      content: generateClient(schema, options),
     },
     {
       path: 'index.ts',
@@ -43,7 +47,7 @@ export function generateMorphClient(schema: ApiSchema): GeneratedFile[] {
   ];
 }
 
-function generateClient(schema: ApiSchema): string {
+function generateClient(schema: ApiSchema, options: GenerateMorphClientOptions): string {
   const objectTypeNames = new Set(schema.types.map((type) => type.name));
   const typeImports = collectClientTypeImports(schema);
   const mapImports = collectClientMapImports(schema, objectTypeNames);
@@ -55,17 +59,39 @@ function generateClient(schema: ApiSchema): string {
 
   return [
     ...imports,
+    ...generateDefaultBaseUrl(options.datasourceUrl),
     '',
     'export class MorphClient {',
     '  readonly #engine: MorphEngine;',
     '',
-    '  constructor(options: MorphClientOptions) {',
-    '    this.#engine = new MorphEngine(options);',
+    `  constructor(options: MorphClientOptions${options.datasourceUrl === undefined ? '' : ' = {}'}) {`,
+    ...generateEngineConstructorLines(options.datasourceUrl),
     '  }',
     ...schema.resources.flatMap((resource) => generateResourceMember(resource, '', objectTypeNames)),
     '}',
     '',
   ].join('\n');
+}
+
+function generateDefaultBaseUrl(datasourceUrl: string | undefined): string[] {
+  if (datasourceUrl === undefined) {
+    return [];
+  }
+
+  return ['', `const defaultBaseUrl = ${stringLiteral(datasourceUrl)};`];
+}
+
+function generateEngineConstructorLines(datasourceUrl: string | undefined): string[] {
+  if (datasourceUrl === undefined) {
+    return ['    this.#engine = new MorphEngine(options);'];
+  }
+
+  return [
+    '    this.#engine = new MorphEngine({',
+    '      ...options,',
+    '      baseUrl: options.baseUrl ?? defaultBaseUrl,',
+    '    });',
+  ];
 }
 
 function collectClientTypeImports(schema: ApiSchema): string[] {
@@ -274,14 +300,20 @@ function generateActionRequestProperties(
   return properties;
 }
 
-function generateTypes(schema: ApiSchema): string {
-  const chunks = [generateClientOptions(), ...schema.enums.map(generateEnum), ...schema.types.map(generateType)];
+function generateTypes(schema: ApiSchema, options: GenerateMorphClientOptions): string {
+  const chunks = [
+    generateClientOptions(options.datasourceUrl),
+    ...schema.enums.map(generateEnum),
+    ...schema.types.map(generateType),
+  ];
 
   return `${chunks.join('\n\n')}\n`;
 }
 
-function generateClientOptions(): string {
-  return ['export type MorphClientOptions = {', '  baseUrl: string;', '  fetcher?: typeof fetch;', '};'].join('\n');
+function generateClientOptions(datasourceUrl: string | undefined): string {
+  const baseUrlProperty = datasourceUrl === undefined ? '  baseUrl: string;' : '  baseUrl?: string;';
+
+  return ['export type MorphClientOptions = {', baseUrlProperty, '  fetcher?: typeof fetch;', '};'].join('\n');
 }
 
 function generateEnum(enumDeclaration: EnumDeclaration): string {

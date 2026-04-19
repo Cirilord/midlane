@@ -6,10 +6,6 @@ import { validateMorphSchema } from './validator.js';
 describe('validateMorphSchema', () => {
   it('accepts a valid schema', () => {
     const schema = parseMorphSchema(`
-      datasource api {
-        url = env("API_URL")
-      }
-
       generator client {
         output = "./generated/client"
       }
@@ -51,9 +47,6 @@ describe('validateMorphSchema', () => {
 
   it('reports missing root declarations and required properties', () => {
     const schema = parseMorphSchema(`
-      datasource api {
-      }
-
       resource users {
         action list {
         }
@@ -61,11 +54,6 @@ describe('validateMorphSchema', () => {
     `);
 
     expect(validateMorphSchema(schema)).toEqual([
-      {
-        code: 'missing_datasource_url',
-        severity: 'error',
-        message: 'Datasource "api" is missing url.',
-      },
       {
         code: 'missing_generator',
         severity: 'error',
@@ -91,10 +79,6 @@ describe('validateMorphSchema', () => {
 
   it('reports duplicate declarations and members', () => {
     const schema = parseMorphSchema(`
-      datasource api {
-        url = "https://example.com"
-      }
-
       generator client {
         output = "./generated/client"
       }
@@ -152,10 +136,6 @@ describe('validateMorphSchema', () => {
 
   it('reports unknown referenced types and bodyless method bodies', () => {
     const schema = parseMorphSchema(`
-      datasource api {
-        url = env("API_URL")
-      }
-
       generator client {
         output = "./generated/client"
       }
@@ -207,10 +187,6 @@ describe('validateMorphSchema', () => {
 
   it('validates action path params against params type fields', () => {
     const schema = parseMorphSchema(`
-      datasource api {
-        url = env("API_URL")
-      }
-
       generator client {
         output = "./generated/client"
       }

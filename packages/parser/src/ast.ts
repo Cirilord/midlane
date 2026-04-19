@@ -1,16 +1,9 @@
 export type ApiSchema = {
   kind: 'schema';
-  datasource?: DatasourceDeclaration;
   generator?: GeneratorDeclaration;
   types: TypeDeclaration[];
   enums: EnumDeclaration[];
   resources: ResourceDeclaration[];
-};
-
-export type DatasourceDeclaration = {
-  kind: 'datasource';
-  name: string;
-  url?: ValueExpression;
 };
 
 export type GeneratorDeclaration = {
@@ -65,13 +58,3 @@ export type ActionDeclaration = {
 };
 
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD' | 'OPTIONS';
-
-export type ValueExpression =
-  | {
-      kind: 'string';
-      value: string;
-    }
-  | {
-      kind: 'env';
-      name: string;
-    };

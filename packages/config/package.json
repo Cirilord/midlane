@@ -1,11 +1,8 @@
 {
-  "name": "@morph/cli",
+  "name": "@morph/config",
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "bin": {
-    "morph": "./dist/index.js"
-  },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -16,19 +13,12 @@
   },
   "scripts": {
     "build": "tsup src/index.ts --format esm --dts",
-    "dev": "tsup --watch",
+    "dev": "tsup src/index.ts --format esm --dts --watch",
     "lint": "biome ci .",
     "check-types": "tsc --noEmit",
-    "test": "vitest run"
-  },
-  "dependencies": {
-    "@morph/config": "*",
-    "@morph/generator": "*",
-    "@morph/parser": "*",
-    "cac": "^7.0.0"
+    "test": "vitest run --passWithNoTests"
   },
   "devDependencies": {
-    "@types/node": "^25.6.0",
     "tsup": "^8.5.1",
     "typescript": "5.9.2",
     "vitest": "^4.1.4"

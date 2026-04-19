@@ -1,4 +1,4 @@
-import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -8,10 +8,6 @@ import { runCli } from './index.js';
 describe('runCli', () => {
   it('validates a schema file', async () => {
     const schemaPath = await writeSchema(`
-      datasource api {
-        url = env("API_URL")
-      }
-
       generator client {
         output = "./generated/client"
       }
@@ -40,10 +36,6 @@ describe('runCli', () => {
 
   it('validates a schema file from a positional path', async () => {
     const schemaPath = await writeSchema(`
-      datasource api {
-        url = env("API_URL")
-      }
-
       generator client {
         output = "./generated/client"
       }
@@ -70,12 +62,43 @@ describe('runCli', () => {
     expect(io.stderrOutput()).toBe('');
   });
 
+  it('validates a schema file from morph config', async () => {
+    const project = await writeProject({
+      config: `
+        export default {
+          schema: './morph/morph.schema',
+        };
+      `,
+      schema: `
+        generator client {
+          output = "../generated/client"
+        }
+
+        type User {
+          id Int
+        }
+
+        resource users {
+          path = "/users"
+
+          action list {
+            method = GET
+            response = User[]
+          }
+        }
+      `,
+    });
+    const io = createTestIO();
+
+    const exitCode = await runCli(['node', 'morph', 'validate', '--config', project.configPath], io);
+
+    expect(exitCode).toBe(0);
+    expect(io.stdoutOutput()).toContain('Schema is valid:');
+    expect(io.stderrOutput()).toBe('');
+  });
+
   it('prints diagnostics for invalid schemas', async () => {
     const schemaPath = await writeSchema(`
-      datasource api {
-        url = env("API_URL")
-      }
-
       generator client {
         output = "./generated/client"
       }
@@ -112,10 +135,6 @@ describe('runCli', () => {
 
   it('generates client files', async () => {
     const schemaPath = await writeSchema(`
-      datasource api {
-        url = env("API_URL")
-      }
-
       generator client {
         output = "./generated/client"
       }
@@ -153,10 +172,6 @@ describe('runCli', () => {
 
   it('generates client files from a positional schema path', async () => {
     const schemaPath = await writeSchema(`
-      datasource api {
-        url = env("API_URL")
-      }
-
       generator client {
         output = "./generated/client"
       }
@@ -186,6 +201,47 @@ describe('runCli', () => {
       'export class MorphClient'
     );
   });
+
+  it('generates client files using schema and datasource from morph config', async () => {
+    const project = await writeProject({
+      config: `
+        export default {
+          datasource: {
+            url: 'https://api.example.com',
+          },
+          schema: './morph/morph.schema',
+        };
+      `,
+      schema: `
+        generator client {
+          output = "../generated/client"
+        }
+
+        type User {
+          id Int
+        }
+
+        resource users {
+          path = "/users"
+
+          action list {
+            method = GET
+            response = User[]
+          }
+        }
+      `,
+    });
+    const io = createTestIO();
+
+    const exitCode = await runCli(['node', 'morph', 'generate', '--config', project.configPath], io);
+
+    expect(exitCode).toBe(0);
+    expect(io.stdoutOutput()).toContain('Generated Morph client:');
+    expect(io.stderrOutput()).toBe('');
+    await expect(readFile(join(project.directory, 'generated', 'client', 'client.ts'), 'utf8')).resolves.toContain(
+      'const defaultBaseUrl = "https://api.example.com";'
+    );
+  });
 });
 
 async function writeSchema(source: string): Promise<string> {
@@ -195,6 +251,27 @@ async function writeSchema(source: string): Promise<string> {
   await writeFile(schemaPath, source);
 
   return schemaPath;
+}
+
+async function writeProject(input: { config: string; schema: string }): Promise<{
+  configPath: string;
+  directory: string;
+  schemaPath: string;
+}> {
+  const directory = await mkdtemp(join(tmpdir(), 'morph-cli-'));
+  const morphDirectory = join(directory, 'morph');
+  const configPath = join(directory, 'morph.config.js');
+  const schemaPath = join(morphDirectory, 'morph.schema');
+
+  await mkdir(morphDirectory, { recursive: true });
+  await writeFile(configPath, input.config);
+  await writeFile(schemaPath, input.schema);
+
+  return {
+    configPath,
+    directory,
+    schemaPath,
+  };
 }
 
 function createTestIO() {
