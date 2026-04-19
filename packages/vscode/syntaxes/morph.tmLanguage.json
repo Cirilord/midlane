@@ -1,0 +1,253 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Morph",
+  "scopeName": "source.morph",
+  "patterns": [
+    {
+      "include": "#comments"
+    },
+    {
+      "include": "#strings"
+    },
+    {
+      "include": "#attributes"
+    },
+    {
+      "include": "#declarations"
+    },
+    {
+      "include": "#actionTypeRefs"
+    },
+    {
+      "include": "#properties"
+    },
+    {
+      "include": "#fieldTypeRefs"
+    },
+    {
+      "include": "#fields"
+    },
+    {
+      "include": "#httpMethods"
+    },
+    {
+      "include": "#scalars"
+    },
+    {
+      "include": "#operators"
+    },
+    {
+      "include": "#numbers"
+    }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.double-slash.morph",
+          "match": "//.*$"
+        }
+      ]
+    },
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.morph",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": [
+            {
+              "name": "constant.character.escape.morph",
+              "match": "\\\\."
+            }
+          ]
+        }
+      ]
+    },
+    "attributes": {
+      "patterns": [
+        {
+          "name": "support.function.attribute.map.morph",
+          "match": "@map\\b"
+        },
+        {
+          "name": "entity.other.attribute-name.morph",
+          "match": "@[A-Za-z_][A-Za-z0-9_]*"
+        }
+      ]
+    },
+    "declarations": {
+      "patterns": [
+        {
+          "name": "meta.declaration.generator.morph",
+          "match": "\\b(generator)\\s+([A-Za-z_][A-Za-z0-9_]*)",
+          "captures": {
+            "1": {
+              "name": "keyword.declaration.generator.morph"
+            },
+            "2": {
+              "name": "entity.name.type.morph"
+            }
+          }
+        },
+        {
+          "name": "meta.declaration.type.morph",
+          "match": "\\b(type)\\s+([A-Za-z_][A-Za-z0-9_]*)",
+          "captures": {
+            "1": {
+              "name": "keyword.declaration.type.morph"
+            },
+            "2": {
+              "name": "entity.name.type.morph"
+            }
+          }
+        },
+        {
+          "name": "meta.declaration.enum.morph",
+          "match": "\\b(enum)\\s+([A-Za-z_][A-Za-z0-9_]*)",
+          "captures": {
+            "1": {
+              "name": "keyword.declaration.enum.morph"
+            },
+            "2": {
+              "name": "entity.name.type.enum.morph"
+            }
+          }
+        },
+        {
+          "name": "meta.declaration.resource.morph",
+          "match": "\\b(resource)\\s+([A-Za-z_][A-Za-z0-9_]*)",
+          "captures": {
+            "1": {
+              "name": "keyword.declaration.resource.morph"
+            },
+            "2": {
+              "name": "entity.name.namespace.resource.morph"
+            }
+          }
+        },
+        {
+          "name": "meta.declaration.resource.morph",
+          "begin": "\\b(action)\\b",
+          "beginCaptures": {
+            "1": {
+              "name": "keyword.declaration.resource.morph"
+            }
+          },
+          "end": "(?=\\{)|$",
+          "patterns": [
+            {
+              "name": "entity.name.namespace.resource.morph",
+              "match": "\\b[A-Za-z_][A-Za-z0-9_]*\\b"
+            },
+            {
+              "include": "#comments"
+            }
+          ]
+        }
+      ]
+    },
+    "properties": {
+      "patterns": [
+        {
+          "name": "support.type.property-name.morph",
+          "match": "\\b(path|method|params|query|body|headers|response|output)\\b(?=\\s*=)"
+        }
+      ]
+    },
+    "actionTypeRefs": {
+      "patterns": [
+        {
+          "name": "meta.action.type-reference.morph",
+          "match": "\\b(params|query|body|headers|response)\\b(\\s*=\\s*)([A-Za-z_][A-Za-z0-9_]*)",
+          "captures": {
+            "1": {
+              "name": "support.type.property-name.morph"
+            },
+            "2": {
+              "name": "keyword.operator.assignment.morph"
+            },
+            "3": {
+              "name": "keyword.declaration.resource.morph"
+            }
+          }
+        }
+      ]
+    },
+    "fields": {
+      "patterns": [
+        {
+          "name": "meta.field.morph",
+          "match": "^\\s*(?!(?:generator|type|enum|resource|action)\\b)([A-Za-z_][A-Za-z0-9_]*)\\s+(?=[A-Za-z_][A-Za-z0-9_]*(?:\\?|\\[\\])?)",
+          "captures": {
+            "1": {
+              "name": "support.type.property-name.morph"
+            }
+          }
+        }
+      ]
+    },
+    "fieldTypeRefs": {
+      "patterns": [
+        {
+          "name": "meta.field.type-reference.morph",
+          "match": "^\\s*(?!(?:generator|type|enum|resource|action)\\b)([A-Za-z_][A-Za-z0-9_]*)(\\s+)(?!(?:String|Int|Float|Boolean|DateTime|Json)\\b)([A-Za-z_][A-Za-z0-9_]*)(\\?)?(\\[\\])?",
+          "captures": {
+            "1": {
+              "name": "support.type.property-name.morph"
+            },
+            "3": {
+              "name": "keyword.declaration.resource.morph"
+            },
+            "4": {
+              "name": "keyword.operator.optional.morph"
+            },
+            "5": {
+              "name": "keyword.control.array.morph"
+            }
+          }
+        }
+      ]
+    },
+    "httpMethods": {
+      "patterns": [
+        {
+          "name": "entity.name.function.http-method.morph",
+          "match": "\\b(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\\b"
+        }
+      ]
+    },
+    "scalars": {
+      "patterns": [
+        {
+          "name": "support.type.builtin.morph",
+          "match": "\\b(String|Int|Float|Boolean|DateTime|Json)\\b"
+        }
+      ]
+    },
+    "operators": {
+      "patterns": [
+        {
+          "name": "keyword.operator.assignment.morph",
+          "match": "="
+        },
+        {
+          "name": "keyword.operator.optional.morph",
+          "match": "\\?"
+        },
+        {
+          "name": "keyword.control.array.morph",
+          "match": "\\[\\]"
+        }
+      ]
+    },
+    "numbers": {
+      "patterns": [
+        {
+          "name": "constant.numeric.morph",
+          "match": "\\b\\d+(?:\\.\\d+)?\\b"
+        }
+      ]
+    }
+  }
+}

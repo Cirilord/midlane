@@ -1,0 +1,42 @@
+{
+  "name": "@morph/vscode",
+  "displayName": "Morph Language Support",
+  "description": "Syntax highlighting for Morph schema files.",
+  "version": "0.0.0",
+  "private": true,
+  "publisher": "morph",
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "scripts": {
+    "build": "node -e \"\"",
+    "check-types": "node -e \"\"",
+    "lint": "biome ci .",
+    "test": "node -e \"\""
+  },
+  "contributes": {
+    "languages": [
+      {
+        "id": "morph",
+        "aliases": [
+          "Morph",
+          "morph"
+        ],
+        "extensions": [
+          ".morph"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "morph",
+        "scopeName": "source.morph",
+        "path": "./syntaxes/morph.tmLanguage.json"
+      }
+    ]
+  }
+}
