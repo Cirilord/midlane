@@ -38,6 +38,38 @@ describe('runCli', () => {
     expect(io.stderrOutput()).toBe('');
   });
 
+  it('validates a schema file from a positional path', async () => {
+    const schemaPath = await writeSchema(`
+      datasource api {
+        url = env("API_URL")
+      }
+
+      generator client {
+        output = "./generated/client"
+      }
+
+      type User {
+        id Int
+      }
+
+      resource users {
+        path = "/users"
+
+        action list {
+          method = GET
+          response = User[]
+        }
+      }
+    `);
+    const io = createTestIO();
+
+    const exitCode = await runCli(['node', 'morph', 'validate', schemaPath], io);
+
+    expect(exitCode).toBe(0);
+    expect(io.stdoutOutput()).toContain('Schema is valid:');
+    expect(io.stderrOutput()).toBe('');
+  });
+
   it('prints diagnostics for invalid schemas', async () => {
     const schemaPath = await writeSchema(`
       datasource api {
@@ -116,6 +148,42 @@ describe('runCli', () => {
     );
     await expect(readFile(join(generatedDirectory, 'index.ts'), 'utf8')).resolves.toContain(
       "export * from './types.js';"
+    );
+  });
+
+  it('generates client files from a positional schema path', async () => {
+    const schemaPath = await writeSchema(`
+      datasource api {
+        url = env("API_URL")
+      }
+
+      generator client {
+        output = "./generated/client"
+      }
+
+      type User {
+        id Int
+      }
+
+      resource users {
+        path = "/users"
+
+        action list {
+          method = GET
+          response = User[]
+        }
+      }
+    `);
+    const io = createTestIO();
+
+    const exitCode = await runCli(['node', 'morph', 'generate', schemaPath], io);
+    const generatedDirectory = join(schemaPath, '..', 'generated', 'client');
+
+    expect(exitCode).toBe(0);
+    expect(io.stdoutOutput()).toContain('Generated Morph client:');
+    expect(io.stderrOutput()).toBe('');
+    await expect(readFile(join(generatedDirectory, 'client.ts'), 'utf8')).resolves.toContain(
+      'export class MorphClient'
     );
   });
 });

@@ -14,34 +14,36 @@ type ValidateOptions = {
   schema?: string;
 };
 
+type SchemaPathArgument = string | undefined;
+
 type GenerateOptions = {
   schema?: string;
   output?: string;
 };
 
-const defaultSchemaPath = 'schema.morph';
+const defaultSchemaPath = 'morph/morph.schema';
 
 export async function runCli(argv: string[], io: CliIO = process): Promise<number> {
   const cli = cac('morph');
   let exitCode = 0;
 
   cli
-    .command('validate', 'Validate a Morph schema')
+    .command('validate [schema]', 'Validate a Morph schema')
     .option('--schema <path>', 'Path to the schema file', {
       default: defaultSchemaPath,
     })
-    .action(async (options: ValidateOptions) => {
-      exitCode = await validateCommand(options, io);
+    .action(async (schemaPath: SchemaPathArgument, options: ValidateOptions) => {
+      exitCode = await validateCommand(schemaPath, options, io);
     });
 
   cli
-    .command('generate', 'Generate a Morph client')
+    .command('generate [schema]', 'Generate a Morph client')
     .option('--schema <path>', 'Path to the schema file', {
       default: defaultSchemaPath,
     })
     .option('--output <path>', 'Override generator output path')
-    .action(async (options: GenerateOptions) => {
-      exitCode = await generateCommand(options, io);
+    .action(async (schemaPath: SchemaPathArgument, options: GenerateOptions) => {
+      exitCode = await generateCommand(schemaPath, options, io);
     });
 
   cli.help();
@@ -59,8 +61,12 @@ export async function runCli(argv: string[], io: CliIO = process): Promise<numbe
   return exitCode;
 }
 
-async function validateCommand(options: ValidateOptions, io: CliIO): Promise<number> {
-  const schemaPath = resolve(options.schema ?? defaultSchemaPath);
+async function validateCommand(
+  schemaPathArgument: SchemaPathArgument,
+  options: ValidateOptions,
+  io: CliIO
+): Promise<number> {
+  const schemaPath = resolve(resolveSchemaPath(schemaPathArgument, options.schema));
 
   try {
     const { diagnostics } = await readAndValidateSchema(schemaPath);
@@ -81,8 +87,12 @@ async function validateCommand(options: ValidateOptions, io: CliIO): Promise<num
   }
 }
 
-async function generateCommand(options: GenerateOptions, io: CliIO): Promise<number> {
-  const schemaPath = resolve(options.schema ?? defaultSchemaPath);
+async function generateCommand(
+  schemaPathArgument: SchemaPathArgument,
+  options: GenerateOptions,
+  io: CliIO
+): Promise<number> {
+  const schemaPath = resolve(resolveSchemaPath(schemaPathArgument, options.schema));
 
   try {
     const { schema, diagnostics } = await readAndValidateSchema(schemaPath);
@@ -111,6 +121,14 @@ async function generateCommand(options: GenerateOptions, io: CliIO): Promise<num
     io.stderr.write(`${formatCliError(error)}\n`);
     return 1;
   }
+}
+
+function resolveSchemaPath(schemaPathArgument: SchemaPathArgument, schemaPathOption: string | undefined): string {
+  if (schemaPathOption !== undefined && schemaPathOption !== defaultSchemaPath) {
+    return schemaPathOption;
+  }
+
+  return schemaPathArgument ?? schemaPathOption ?? defaultSchemaPath;
 }
 
 async function readAndValidateSchema(schemaPath: string) {

@@ -3,7 +3,7 @@ datasource api {
 }
 
 generator client {
-  output = "./generated/client"
+  output = "../generated/client"
 }
 
 type User {
