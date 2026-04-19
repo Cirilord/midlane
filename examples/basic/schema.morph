@@ -1,0 +1,28 @@
+datasource api {
+  url = env("API_URL")
+}
+
+generator client {
+  output = "./generated/client"
+}
+
+type User {
+  id    Int    @map("usr_id")
+  name  String @map("usr_name")
+  email String @map("usr_mail")
+}
+
+type ListUsersQuery {
+  search String? @map("q")
+  page   Int?    @map("page_num")
+}
+
+resource users {
+  path = "/users"
+
+  action list {
+    method   = GET
+    query    = ListUsersQuery
+    response = User[]
+  }
+}
