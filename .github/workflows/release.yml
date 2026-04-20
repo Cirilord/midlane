@@ -49,6 +49,7 @@ jobs:
           yarn prepare
 
       - name: Verify npm auth
+        working-directory: packages/midlane
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm whoami

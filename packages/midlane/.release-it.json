@@ -5,7 +5,7 @@
   },
   "npm": {
     "publish": true,
-    "tokenRef": "NODE_AUTH_TOKEN"
+    "skipChecks": true
   },
   "github": {
     "release": true
