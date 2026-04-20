@@ -171,7 +171,7 @@ describe('runCli', () => {
       'id: { externalName: "usr_id" }'
     );
     await expect(readFile(join(generatedDirectory, 'index.ts'), 'utf8')).resolves.toContain(
-      "export * from './types.js';"
+      "export * from './types';"
     );
   });
 
