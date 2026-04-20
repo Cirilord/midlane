@@ -1,6 +1,6 @@
 {
   "name": "midlane",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Typed API layer and client generator.",
   "license": "MIT",
   "type": "module",
