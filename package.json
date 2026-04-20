@@ -1,5 +1,6 @@
 {
   "name": "midlane",
+  "version": "0.1.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -7,13 +8,17 @@
     "dev": "turbo run dev",
     "lint": "biome ci .",
     "format": "biome check --write .",
-    "check-types": "turbo run check-types",
+    "type-check": "turbo run check-types",
     "test": "turbo run test",
+    "prepare": "yarn build",
+    "release-it": "yarn workspace midlane release-it",
     "midlane": "node packages/midlane/bin/midlane.js"
   },
   "devDependencies": {
+    "@release-it/conventional-changelog": "^10.0.0",
     "@biomejs/biome": "2.4.12",
     "@tsconfig/strictest": "^2.0.8",
+    "release-it": "^19.0.5",
     "turbo": "^2.9.6",
     "typescript": "5.9.2"
   },

@@ -32,6 +32,7 @@
     "build": "tsup",
     "check-types": "tsc --noEmit",
     "lint": "biome ci .",
+    "release-it": "release-it",
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
