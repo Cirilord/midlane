@@ -52,9 +52,9 @@ function generateClient(schema: ApiSchema, options: GenerateMidlaneClientOptions
   const typeImports = collectClientTypeImports(schema);
   const mapImports = collectClientMapImports(schema, objectTypeNames);
   const imports = [
-    `import type { ${typeImports.join(', ')} } from './types.js';`,
+    `import type { ${typeImports.join(', ')} } from './types';`,
     "import { MidlaneEngine } from 'midlane/runtime';",
-    mapImports.length > 0 ? `import { ${mapImports.join(', ')} } from './maps.js';` : undefined,
+    mapImports.length > 0 ? `import { ${mapImports.join(', ')} } from './maps';` : undefined,
   ].filter((line) => line !== undefined);
 
   return [
@@ -407,9 +407,9 @@ function generateIndex(types: TypeDeclaration[]): string {
   const mapExports = types.map((type) => `${type.name}Map`).join(', ');
 
   return [
-    `export { MidlaneClient } from './client.js';`,
-    `export * from './types.js';`,
-    `export { maps${mapExports.length > 0 ? `, ${mapExports}` : ''} } from './maps.js';`,
+    `export { MidlaneClient } from './client';`,
+    `export * from './types';`,
+    `export { maps${mapExports.length > 0 ? `, ${mapExports}` : ''} } from './maps';`,
     '',
   ].join('\n');
 }

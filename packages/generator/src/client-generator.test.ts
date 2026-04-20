@@ -139,9 +139,9 @@ describe('generateMidlaneClient', () => {
       {
         path: 'client.ts',
         content: [
-          "import type { AuthHeaders, CreateUserBody, ListUsersQuery, MidlaneClientOptions, User, UserIdParams } from './types.js';",
+          "import type { AuthHeaders, CreateUserBody, ListUsersQuery, MidlaneClientOptions, User, UserIdParams } from './types';",
           "import { MidlaneEngine } from 'midlane/runtime';",
-          "import { AuthHeadersMap, CreateUserBodyMap, ListUsersQueryMap, UserMap } from './maps.js';",
+          "import { AuthHeadersMap, CreateUserBodyMap, ListUsersQueryMap, UserMap } from './maps';",
           '',
           'const defaultBaseUrl = "https://api.example.com";',
           '',
@@ -194,9 +194,9 @@ describe('generateMidlaneClient', () => {
       {
         path: 'index.ts',
         content: [
-          "export { MidlaneClient } from './client.js';",
-          "export * from './types.js';",
-          "export { maps, UserMap, ListUsersQueryMap, UserIdParamsMap, AuthHeadersMap, CreateUserBodyMap } from './maps.js';",
+          "export { MidlaneClient } from './client';",
+          "export * from './types';",
+          "export { maps, UserMap, ListUsersQueryMap, UserIdParamsMap, AuthHeadersMap, CreateUserBodyMap } from './maps';",
           '',
         ].join('\n'),
       },
